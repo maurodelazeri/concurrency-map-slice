@@ -32,6 +32,14 @@ func (cs *ConcurrentSlice) Append(item interface{}) {
 	cs.items = append(cs.items, item)
 }
 
+// Get retrieve an index
+func (cs *ConcurrentSlice) Get(index int) (item interface{}) {
+	// NOT SAVE make you sure the index is valid!!!!
+	cs.Lock()
+	defer cs.Unlock()
+	return cs.items[index]
+}
+
 // Iter iterates over the items in the concurrent slice.
 // Each item is sent over a channel, so that
 // we can iterate over the slice using the builin range keyword.
