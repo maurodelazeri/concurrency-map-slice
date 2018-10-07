@@ -20,7 +20,6 @@ func NewConcurrentMap() *ConcurrentMap {
 	cm := &ConcurrentMap{
 		items: make(map[string]interface{}),
 	}
-
 	return cm
 }
 
@@ -28,18 +27,22 @@ func NewConcurrentMap() *ConcurrentMap {
 func (cm *ConcurrentMap) Set(key string, value interface{}) {
 	cm.Lock()
 	defer cm.Unlock()
-
 	cm.items[key] = value
 }
 
 // Get retrieves the value for a concurrent map item.
 func (cm *ConcurrentMap) Get(key string) (interface{}, bool) {
+	cm.RLock()
+	defer cm.RUnlock()
+	value, ok := cm.items[key]
+	return value, ok
+}
+
+// Delete remove one key from the mao
+func (cm *ConcurrentMap) Delete(key string) {
 	cm.Lock()
 	defer cm.Unlock()
-
-	value, ok := cm.items[key]
-
-	return value, ok
+	delete(cm.items, key)
 }
 
 // Iter iterates over the items in a concurrent map.
@@ -47,11 +50,9 @@ func (cm *ConcurrentMap) Get(key string) (interface{}, bool) {
 // we can iterate over the map using the builtin range keyword.
 func (cm *ConcurrentMap) Iter() <-chan ConcurrentMapItem {
 	c := make(chan ConcurrentMapItem)
-
 	f := func() {
-		cm.Lock()
-		defer cm.Unlock()
-
+		cm.RLock()
+		defer cm.RUnlock()
 		for k, v := range cm.items {
 			c <- ConcurrentMapItem{k, v}
 		}

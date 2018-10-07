@@ -28,15 +28,14 @@ func NewConcurrentSlice() *ConcurrentSlice {
 func (cs *ConcurrentSlice) Append(item interface{}) {
 	cs.Lock()
 	defer cs.Unlock()
-
 	cs.items = append(cs.items, item)
 }
 
 // Get retrieve an index
 func (cs *ConcurrentSlice) Get(index int) (item interface{}) {
 	// NOT SAVE make you sure the index is valid!!!!
-	cs.Lock()
-	defer cs.Unlock()
+	cs.RLock()
+	defer cs.RUnlock()
 	return cs.items[index]
 }
 
@@ -45,10 +44,9 @@ func (cs *ConcurrentSlice) Get(index int) (item interface{}) {
 // we can iterate over the slice using the builin range keyword.
 func (cs *ConcurrentSlice) Iter() <-chan ConcurrentSliceItem {
 	c := make(chan ConcurrentSliceItem)
-
 	f := func() {
-		cs.Lock()
-		defer cs.Unlock()
+		cs.RLock()
+		defer cs.RUnlock()
 		for index, value := range cs.items {
 			c <- ConcurrentSliceItem{index, value}
 		}
