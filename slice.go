@@ -31,7 +31,7 @@ func (cs *ConcurrentSlice) Append(item interface{}) {
 	cs.items = append(cs.items, item)
 }
 
-// Get retrieve an index
+// get an index
 func (cs *ConcurrentSlice) Get(index int) (item interface{}) {
 	cs.RLock()
 	defer cs.RUnlock()
