@@ -33,10 +33,16 @@ func (cs *ConcurrentSlice) Append(item interface{}) {
 
 // Get retrieve an index
 func (cs *ConcurrentSlice) Get(index int) (item interface{}) {
-	// NOT SAVE make you sure the index is valid!!!!
 	cs.RLock()
 	defer cs.RUnlock()
-	return cs.items[index]
+	if isset(cs.items, index) {
+		return cs.items[index]
+	}
+	return nil
+}
+
+func isset(arr []interface{}, index int) bool {
+	return (len(arr) > index)
 }
 
 // Iter iterates over the items in the concurrent slice.
